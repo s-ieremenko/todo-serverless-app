@@ -1,0 +1,5 @@
+MessageQueueIAM:
+  Effect: Allow
+  Action:
+    - sqs:SendMessage
+  Resource: ${self:custom.MessageQueue.arn}

@@ -1,0 +1,77 @@
+service: aws-node-http-api-project
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  region: eu-central-1
+  environment:
+    TODO_TABLE_NAME: ${self:custom.TodoTable.name}
+    MESSAGE_QUEUE_URL: ${self:custom.MessageQueue.url}
+    TODO_BUCKET_NAME: ${self:custom.TodoBucket.name}
+
+  iamRoleStatements:
+    - ${file(iam/TodoTableIAM.yml):TodoTableIAM}
+    - ${file(iam/MessageQueueIAM.yml):MessageQueueIAM}
+    - ${file(iam/TodoBucketIAM.yml):TodoBucketIAM}
+
+functions:
+  addTodo:
+    handler: src/addTodo.handler
+    events:
+      - httpApi:
+          path: /
+          method: post
+  fetchTodos:
+    handler: src/fetchTodos.handler
+    events:
+      - httpApi:
+          path: /todos
+          method: get
+  fetchTodo:
+    handler: src/fetchTodo.handler
+    events:
+      - httpApi:
+          path: /todo/{id}
+          method: get
+  updateTodo:
+    handler: src/updateTodo.handler
+    events:
+      - httpApi:
+          path: /todo/{id}
+          method: patch
+  deleteTodo:
+    handler: src/deleteTodo.handler
+    events:
+      - httpApi:
+          path: /todo/{id}
+          method: delete
+  uploadAuctionPicture:
+    handler: src/uploadPicture.handler
+    events:
+      - http:
+          method: PATCH
+          path: /todo/{id}/picture
+          cors: true
+
+resources:
+  Resources:
+    MessageQueue: ${file(resources/MessageQueue.yml):MessageQueue}
+    TodoTable: ${file(resources/TodoTable.yml):TodoTable}
+    TodoBucket: ${file(resources/TodoBucket.yml):TodoBucket}
+    TodoBucketPolicy: ${file(resources/TodoBucket.yml):TodoBucketPolicy}
+
+
+custom:
+  TodoTable:
+    name: !Ref TodoTable
+    arn: !GetAtt TodoTable.Arn
+  MessageQueue:
+    name: MessageQueue-${self:provider.stage}
+    arn: !GetAtt MessageQueue.Arn
+    url: !Ref MessageQueue
+  TodoBucket:
+    name: todo-bucket-test-siere-${self:provider.stage}
+

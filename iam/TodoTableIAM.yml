@@ -1,0 +1,6 @@
+TodoTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:*
+  Resource:
+    - ${self:custom.TodoTable.arn}
