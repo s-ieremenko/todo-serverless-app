@@ -1,0 +1,14 @@
+MessageQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: ${self:custom.MessageQueue.name}
+
+#Outputs:
+#  MessageQueueArn:
+#    Value: ${self:custom.MessageQueue.arn}
+#    Export:
+#      Name: ${self:custom.MessageQueue.name}-Arn
+#  MessageQueueUrl:
+#    Value: ${self:custom.MessageQueue.url}
+#    Export:
+#      Name: ${self:custom.MessageQueue.name}-Url
